@@ -1,25 +1,33 @@
 module EasyProfiler
+  # Contains global profiling parameters and methods to start and
+  # stop profiling.
   class Profile
+    # Gets a value indicating whether profiling is globally enabled.
     def self.enable_profiling
       @@enable_profiling
     end
     
+    # Sets a value indicating whether profiling is globally enabled.
     def self.enable_profiling=(value)
       @@enable_profiling = value
     end
 
+    # Gets a minimum time period which should be reached to dump profile to the log.
     def self.print_limit
       @@print_limit
     end
 
+    # Sets a minimum time period which should be reached to dump profile to the log.
     def self.print_limit=(value)
       @@print_limit = value.to_f
     end
     
+    # Gets a logger.
     def self.logger
       @logger
     end
 
+    # Sets a logger.
     def self.logger=(value)
       @logger = value
     end
@@ -29,6 +37,19 @@ module EasyProfiler
     @@logger           = nil
     @@profile_results  = {}
   
+    # Starts a profiling session.
+    #
+    # Parameters:
+    # * +name+ -- session name.
+    # * +options+ -- a +Hash+ of options.
+    #
+    # Possible options:
+    # * <tt>:enabled</tt> -- value indicating whether profiling is enabled.
+    # * <tt>:limit</tt> -- minimum time period which should be reached to print profiling log.
+    # * <tt>:logger</tt> -- a +Logger+ instance.
+    #
+    # Returns:
+    # * an instance of profiler (descendant of the <tt>EasyProfiler::ProfileInstanceBase</tt> class).
     def self.start(name, options = {})
       if @@profile_results[name]
         raise ArgumentError.new("EasyProfiler::Profile.start() collision! '#{name}' is already started.")
@@ -43,7 +64,11 @@ module EasyProfiler
     
       @@profile_results[name] = instance
     end
-  
+
+    # Finishes a profiling session and dumps results to the log.
+    #
+    # Parameters:
+    # * +name+ -- session name, used in +start+ method.
     def self.stop(name)
       instance = @@profile_results.delete(name)
       unless instance
