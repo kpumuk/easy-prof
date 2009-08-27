@@ -1,0 +1,179 @@
+= easy-prof
+
+Simple and easy to use Ruby code profiler, which could be used
+as a Rails plugin.
+
+== Installation
+
+If you're using Rails 2.1, you can simply use "script/plugin". It will export
+all the code from GitHub into "vendor/plugins":
+
+  script/plugin install git://github.com/kpumuk/easy-prof.git
+
+If you are using Rails prior to 2.1, use the following:
+
+  cd vendor/plugins
+  git clone git://github.com/kpumuk/easy-prof.git
+  rm -rf easy-prof/.git
+  cd ../..  
+
+To continuously track meta-tags development, it's probably best to install it
+as a plugin using some vendor branch management tool like Braid:
+
+  gem install evilchelu-braid
+
+Using Braid to add a Rails plugin is simple:
+
+  # (make sure you've commited everything first)
+  braid add -p git://github.com/kpumuk/easy-prof.git
+  
+  # now you should have the library in vendor/plugins/easy-prof
+
+== Description
+
+The main idea behind the easy-prof is creating check points and your
+code and measuring time needed to execute code blocks. Here is the
+example of easy-prof output:
+
+  [home#index] Benchmark results:
+  [home#index] debug: Logged in user home page
+  [home#index] progress: 0.7002 s [find top videos]
+  [home#index] progress: 0.0452 s [build categories list]
+  [home#index] progress: 0.0019 s [build tag cloud]
+  [home#index] progress: 0.0032 s [find featured videos]
+  [home#index] progress: 0.0324 s [find latest videos]
+  [home#index] debug: VIEW STARTED
+  [home#index] progress: 0.0649 s [top videos render]
+  [home#index] progress: 0.0014 s [categories render]
+  [home#index] progress: 2.5887 s [tag cloud render]
+  [home#index] progress: 0.0488 s [latest videos render]
+  [home#index] progress: 0.1053 s [featured video render]
+  [home#index] results: 3.592 s
+
+From this output you can see what checkpoints takes longer to reach,
+and what code fragments are pretty fast.
+
+== Usage
+
+The library extends <tt>Kernel</tt> with a method <tt>easy_profiler</tt>.
+By default profiling is disabled globally, so you should pass :enabled
+parameter to enable profiling of particular code. Also there is a time
+:limit option which could be used to skip logging of blocks which are
+fast enough.
+
+For more details see the options description below.
+
+  easy_profiler('sleep', :enabled => true) do |p|
+    sleep 1
+    p.progress('sleep 1')
+    p.debug('checkpoint reached')
+    sleep 2
+    p.progress('sleep 2')
+  end
+
+Method accepts two parameters: profiling session name and a hash of
+options:
+
+* <tt>:enabled</tt> -- value indicating whether profiling is enabled.
+* <tt>:limit</tt> -- minimum time period which should be reached to print profiling log.
+* <tt>:logger</tt> -- a +Logger+ instance.
+
+== Configuration
+
+There are some global configuration options of <tt>EasyProfiler::Profile</tt>
+class exists:
+
+* <tt>enable_profiling</tt> -- used to enable or disable profiling
+  globalle (<tt>false</tt> by default).
+* <tt>print_limit</tt> -- used to set a minimum time period in seconds
+  which should be reached to dump profile to the log (<tt>0.01</tt>
+  by default).
+* <tt>logger</tt> -- a <tt>Logger</tt> instance to dump logs to.
+
+== Ruby on Rails application profiling
+
+Here is the complete example of a Rails action profiling:
+
+  class HomeController < ApplicationController
+    def index
+      kpumuk_profile('home#index', :enabled => profile_request?, :limit => 2) do |p|
+        p.progress 'logged in user home page'
+      
+        @top_videos = Video.top(:limit => 10)
+        p.progress 'find top videos'
+
+        @categories = Category.all(:order => 'name DESC')
+        p.progress 'build categories list'
+
+        @tag_cloud = Tag.tag_cloud(:limit => 200)
+        p.progress 'build tag cloud'
+      
+        @featured_videos = Video.featured(limit => 5)
+        p.progress 'find featured videos'
+
+        @latest_videos = Video.latest(:limit => 5)
+        p.progress 'find latest videos'
+      
+        @profiler = p
+        p.debug 'VIEW STARTED'
+      end
+    end
+
+    private
+  
+      # Method returns +true+ if current request should ouput profiling information
+      def profile_request?
+        params['_with_profiling'] == 'yes'
+      end
+  end
+
+And view:
+
+  <div id="top_videos">
+    <%= render :partial => 'top_videos' %>
+    <% @profiler.progress 'top videos render' %>
+  </div>
+  
+  <div class="tabs">
+    <ul id="taxonomy">
+      <li><a href="#" id="categories" class="current">Categories</a></li>
+      <li><a href="#" id="tags">Tags</a></li>
+    </ul>
+    <div class="categories_panel">
+      <%= render :partial => 'categories' %>
+      <% @profiler.progress 'categories render' %>
+    </div>
+    <div class="categories_panel hidden">
+      <%= render :partial => 'tag_cloud' %>
+      <% @profiler.progress 'tag cloud render' %>
+    </div>
+  </div>
+  
+  <div class="box">
+    <div id="latest">
+      <%= render :partial => 'videos', :videos => @latest_videos %>
+      <% @profiler.progress 'latest videos render' %>
+    </div>
+    <div id="featured">
+      <%= render :partial => 'videos', :videos => @featured_videos %>
+      <% @profiler.progress 'featured video render' %>
+    </div>
+  </div>
+  
+As you can see from this example, profiler will be enabled only when
+you pass a _with_profiling parameter with value yes:
+
+_http://example.com/home?_with_profiling=yes.
+
+== Who are the authors?
+
+This plugin has been created in Scribd.com for our internal use
+and then the sources were opened for other people to use. All the
+code in this package has been developed by Dmytro Shteflyuk for
+Scribd.com and is released under the GPLv2 license. For more details,
+see the LICENSE file.
+
+== Credits
+
+* Dmytro Shteflyuk (author) <kpumuk@kpumuk.info> http://kpumuk.info
+* Alexey Kovyrin (contributor) <alexey@kovyrin.net> http://kovyrin.net
