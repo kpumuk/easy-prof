@@ -24,7 +24,7 @@ as a plugin using some vendor branch management tool like Braid:
 
 Using Braid to add a Rails plugin is simple:
 
-  # (make sure you've commited everything first)
+  # (make sure you've committed everything first)
   braid add -p git://github.com/kpumuk/easy-prof.git
   
   # now you should have the library in vendor/plugins/easy-prof
