@@ -170,8 +170,8 @@ _http://example.com/home?_with_profiling=yes.
 This plugin has been created in Scribd.com for our internal use
 and then the sources were opened for other people to use. All the
 code in this package has been developed by Dmytro Shteflyuk for
-Scribd.com and is released under the GPLv2 license. For more details,
-see the LICENSE file.
+Scribd.com and is released under the MIT license. For more details,
+see the MIT-LICENSE file.
 
 == Credits
 
