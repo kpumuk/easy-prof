@@ -5,6 +5,7 @@ module EasyProfiler
     def initialize(name, options = {})
       @name = name
       @options = options
+      @profile_logger = @options[:logger]
       @start = @progress = Time.now.to_f
       @buffer = []
     end
@@ -13,6 +14,9 @@ module EasyProfiler
     end
 
     def debug(message)
+    end
+    
+    def dump_results
     end
   end
 end

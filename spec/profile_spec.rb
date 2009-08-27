@@ -2,6 +2,8 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe EasyProfiler::Profile do
   after :each do
+    EasyProfiler::Profile.enable_profiling = false
+    EasyProfiler::Profile.print_limit = 0.01
     EasyProfiler::Profile.send :class_variable_set, :@@profile_results, {}
   end
   
@@ -43,6 +45,13 @@ describe EasyProfiler::Profile do
       EasyProfiler::Profile.print_limit = 10
       EasyProfiler::Profile.start('myprofiler2').options[:limit].should == 10.0
     end
+
+    it 'should use global :logger value' do
+      EasyProfiler::Profile.start('myprofiler1').options[:logger].should be_nil
+      logger = mock('MockLogger')
+      EasyProfiler::Profile.logger = logger
+      EasyProfiler::Profile.start('myprofiler2').options[:logger].should be(logger)
+    end
   end
 
   context '.stop' do
@@ -50,6 +59,12 @@ describe EasyProfiler::Profile do
       lambda {
         EasyProfiler::Profile.stop('myprofiler')
       }.should raise_error(ArgumentError)
+    end
+
+    it 'should call dump_results method on profiler' do
+      profiler = mock_profile_start('myprofiler', :enabled => true)
+      profiler.should_receive(:dump_results)
+      EasyProfiler::Profile.stop('myprofiler')
     end
   end
 end

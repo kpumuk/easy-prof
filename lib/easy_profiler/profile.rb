@@ -15,9 +15,18 @@ module EasyProfiler
     def self.print_limit=(value)
       @@print_limit = value.to_f
     end
+    
+    def self.logger
+      @logger
+    end
+
+    def self.logger=(value)
+      @logger = value
+    end
 
     @@enable_profiling = false
     @@print_limit      = 0.01
+    @@logger           = nil
     @@profile_results  = {}
   
     def self.start(name, options = {})
@@ -25,8 +34,9 @@ module EasyProfiler
         raise ArgumentError.new("EasyProfiler::Profile.start() collision! '#{name}' is already started.")
       end
 
-      options[:enabled] ||= self.enable_profiling
-      options[:limit]   ||= self.print_limit
+      options[:enabled] = self.enable_profiling if options[:enabled].nil?
+      options[:limit]   = self.print_limit      if options[:limit].nil?
+      options[:logger]  = self.logger           if options[:logger].nil?
       
       klass = options[:enabled] ? ProfileInstance : NoProfileInstance
       instance = klass.new(name, options)
@@ -39,15 +49,8 @@ module EasyProfiler
       unless instance
         raise ArgumentError.new("EasyProfiler::Profile.stop() error! '#{name}' is not started yet.")
       end
-   
-      return unless instance.options[:enabled]
     
-      total = instance.total
-    
-      if total > instance.options[:limit]
-        instance.buffer_checkpoint("results: %0.4f seconds" % total)
-        instance.dump_results
-      end
+      instance.dump_results
     end
   end
 end
