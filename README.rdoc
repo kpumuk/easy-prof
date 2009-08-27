@@ -96,7 +96,7 @@ Here is the complete example of a Rails action profiling:
 
   class HomeController < ApplicationController
     def index
-      kpumuk_profile('home#index', :enabled => profile_request?, :limit => 2) do |p|
+      easy_profiler('home#index', :enabled => profile_request?, :limit => 2) do |p|
         p.progress 'logged in user home page'
       
         @top_videos = Video.top(:limit => 10)
