@@ -24,8 +24,9 @@ module Kernel
   #     p.progress('sleep 2')
   #   end
   def easy_profiler(name, options = {})
-    yield EasyProfiler::Profile.start(name, options)
+    profiler = EasyProfiler::Profile.start(name, options)
+    yield profiler
   ensure
-    EasyProfiler::Profile.stop(name)
+    EasyProfiler::Profile.stop(name) if profiler
   end
 end
