@@ -75,7 +75,10 @@ Method accepts two parameters: profiling session name and a hash of
 options:
 
 * <tt>:enabled</tt> -- value indicating whether profiling is enabled.
-* <tt>:limit</tt> -- minimum time period which should be reached to print profiling log.
+* <tt>:limit</tt> -- minimum time period which should be reached to
+  print profiling log.
+* <tt>:count_ar_instances</tt> -- indicating whether profiler should
+  log an approximate number of instantiated ActiveRecord objects.
 * <tt>:logger</tt> -- a +Logger+ instance.
 
 == Configuration
@@ -88,7 +91,21 @@ class exists:
 * <tt>print_limit</tt> -- used to set a minimum time period in seconds
   which should be reached to dump profile to the log (<tt>0.01</tt>
   by default).
+* <tt>count_ar_instances</tt> -- indicating whether profiler should
+  log an approximate number of instantiated ActiveRecord objects.
 * <tt>logger</tt> -- a <tt>Logger</tt> instance to dump logs to.
+
+== Active Record instances number profiling
+
+easy-prof can log a number of instantiated ActiveRecord instances.
+To enable this kind of profiling, use a <tt>:count_ar_instances</tt>
+option or global setting with the same name.
+
+Please note, that easy-prof completely disables garbage collector
+during this kind of profiling. It could hurt your overall application
+performance, so do not use it on production boxes. Also I can't
+guaranty 100% precision, but it is about this value in almost all
+cases.
 
 == Ruby on Rails application profiling
 
@@ -163,7 +180,7 @@ And view:
 As you can see from this example, profiler will be enabled only when
 you pass a _with_profiling parameter with value yes:
 
-_http://example.com/home?_with_profiling=yes.
+  http://example.com/home?_with_profiling=yes
 
 == Who are the authors?
 

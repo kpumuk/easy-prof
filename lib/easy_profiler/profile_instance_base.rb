@@ -12,7 +12,12 @@ module EasyProfiler
       @name = name
       @options = options
       @profile_logger = @options[:logger]
+      
       @start = @progress = Time.now.to_f
+      if options[:count_ar_instances]
+        @start_ar_instances = @current_ar_instances = active_record_instances_count
+      end
+      
       @buffer = []
     end
 
@@ -33,5 +38,14 @@ module EasyProfiler
     # Dumps results to the log.
     def dump_results
     end
+    
+    protected
+    
+      # Returns a number of ActiveRecord instances in the Object Space.
+      def active_record_instances_count
+        count = 0
+        ObjectSpace.each_object(ActiveRecord::Base) { count += 1 }
+        count
+      end
   end
 end

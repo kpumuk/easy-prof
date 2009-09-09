@@ -8,7 +8,14 @@ module EasyProfiler
     def progress(message)
       progress = (now = Time.now.to_f) - @progress
       @progress = now
-      buffer_checkpoint("progress: %0.4f s [#{message}]" % progress)
+
+      ar_instances_count = if @options[:count_ar_instances]
+        ar_instances_delta = (ar_instances = active_record_instances_count) - @current_ar_instances
+        @current_ar_instances = ar_instances
+        ", #{ar_instances_delta} AR objects"
+      end
+
+      buffer_checkpoint("progress: %0.4f s#{ar_instances_count} [#{message}]" % progress)
     end
   
     # Sets a profiling checkpoint without execution time printing.
@@ -29,7 +36,12 @@ module EasyProfiler
         @buffer.each do |message|
           profile_logger.info("[#{@name}] #{message}")
         end
-        profile_logger.info("[#{@name}] results: %0.4f s" % t)
+        
+        ar_instances_count = if options[:count_ar_instances]
+          ", #{total_ar_instances} AR objects"
+        end
+
+        profile_logger.info("[#{@name}] results: %0.4f s#{ar_instances_count}" % t)
       end
     end
   
@@ -38,6 +50,11 @@ module EasyProfiler
       # Gets a total profiling time.
       def total
         Time.now.to_f - @start
+      end
+      
+      # Gets a number of total AR objects instantiated number.
+      def total_ar_instances
+        active_record_instances_count - @start_ar_instances
       end
   
       # Buffers a profiling checkpoint.
