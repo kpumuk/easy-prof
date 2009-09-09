@@ -5,6 +5,7 @@ describe EasyProfiler::Profile do
     EasyProfiler::Profile.enable_profiling   = false
     EasyProfiler::Profile.print_limit        = 0.01
     EasyProfiler::Profile.count_ar_instances = false
+    EasyProfiler::Profile.count_memory_usage = false
     EasyProfiler::Profile.send :class_variable_set, :@@profile_results, {}
   end
   
@@ -53,6 +54,12 @@ describe EasyProfiler::Profile do
       EasyProfiler::Profile.start('myprofiler2').options[:count_ar_instances].should be_true
     end
 
+    it 'should use global :count_memory_usage value' do
+      EasyProfiler::Profile.start('myprofiler1').options[:count_memory_usage].should be_false
+      EasyProfiler::Profile.count_memory_usage = true
+      EasyProfiler::Profile.start('myprofiler2').options[:count_memory_usage].should be_true
+    end
+
     it 'should use global :logger value' do
       EasyProfiler::Profile.start('myprofiler1').options[:logger].should be_nil
       logger = mock('MockLogger')
@@ -63,7 +70,11 @@ describe EasyProfiler::Profile do
     it 'should disable garbage collector when needed' do
       options = { :enabled => true, :count_ar_instances => true }
       GC.should_receive(:disable)
-      EasyProfiler::Profile.start('myprofiler', options)
+      EasyProfiler::Profile.start('myprofiler1', options)
+
+      options = { :enabled => true, :count_memory_usage => true }
+      GC.should_receive(:disable)
+      EasyProfiler::Profile.start('myprofiler2', options)
     end
   end
 
@@ -81,10 +92,15 @@ describe EasyProfiler::Profile do
     end
 
     it 'should enable back garbage collector when needed' do
-      profiler = mock_profile_start('myprofiler', :enabled => true, :count_ar_instances => true)
+      profiler = mock_profile_start('myprofiler1', :enabled => true, :count_ar_instances => true)
       profiler.stub!(:dump_results)
       GC.should_receive(:enable)
-      EasyProfiler::Profile.stop('myprofiler')
+      EasyProfiler::Profile.stop('myprofiler1')
+
+      profiler = mock_profile_start('myprofiler2', :enabled => true, :count_memory_usage => true)
+      profiler.stub!(:dump_results)
+      GC.should_receive(:enable)
+      EasyProfiler::Profile.stop('myprofiler2')
     end
   end
 end

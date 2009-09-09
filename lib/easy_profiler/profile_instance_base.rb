@@ -14,8 +14,15 @@ module EasyProfiler
       @profile_logger = @options[:logger]
       
       @start = @progress = Time.now.to_f
+
+      # Initial number of ActiveRecord::Base objects
       if options[:count_ar_instances]
         @start_ar_instances = @current_ar_instances = active_record_instances_count
+      end
+
+      # Initial amount of memory used
+      if options[:count_memory_usage]
+        @start_memory_usage = @current_memory_usage = process_memory_usage
       end
       
       @buffer = []
@@ -46,6 +53,28 @@ module EasyProfiler
         count = 0
         ObjectSpace.each_object(::ActiveRecord::Base) { count += 1 }
         count
+      end
+      
+      # Returns an amount of memory used by current Ruby process.
+      def process_memory_usage
+        `ps -o rss= -p #{$$}`.to_i
+      end
+      
+      # Formats an amount of memory to print.
+      def format_memory_size(number)
+        if number > 10 ** 9
+          number = number.to_f / (10 ** 9)
+          suffix = 'G'
+        elsif number > 10 ** 6
+          number = number.to_f / (10 ** 6)
+          suffix = 'M'
+        elsif number > 10 ** 3
+          number = number.to_f / (10 ** 3)
+          suffix = 'K'
+        else
+          suffix = 'B'
+        end
+        "%.2f#{suffix}" % number
       end
   end
 end

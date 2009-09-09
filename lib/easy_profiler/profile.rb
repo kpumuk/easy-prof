@@ -36,6 +36,18 @@ module EasyProfiler
       def count_ar_instances=(value)
         @@count_ar_instances = value
       end
+      
+      # Gets a value indicating whether profiler should log an
+      # approximate amount of memory used.
+      def count_memory_usage
+        @@count_memory_usage
+      end
+      
+      # Sets a value indicating whether profiler should log an
+      # approximate amount of memory used.
+      def count_memory_usage=(value)
+        @@count_memory_usage = value
+      end
     
       # Gets a logger.
       def logger
@@ -51,6 +63,7 @@ module EasyProfiler
     @@enable_profiling   = false
     @@print_limit        = 0.01
     @@count_ar_instances = false
+    @@count_memory_usage = false
     @@logger             = nil
     @@profile_results    = {}
   
@@ -64,6 +77,7 @@ module EasyProfiler
     # * <tt>:enabled</tt> -- value indicating whether profiling is enabled.
     # * <tt>:limit</tt> -- minimum time period which should be reached to print profiling log.
     # * <tt>:count_ar_instances</tt> —- indicating whether profiler should log an approximate number of instantiated ActiveRecord objects.
+    # * <tt>:count_memory_usage</tt> —- indicating whether profiler should log an approximate amount of memory used.
     # * <tt>:logger</tt> -- a +Logger+ instance.
     #
     # Returns:
@@ -76,10 +90,11 @@ module EasyProfiler
       options[:enabled]            = self.enable_profiling   if options[:enabled].nil?
       options[:limit]              = self.print_limit        if options[:limit].nil?
       options[:count_ar_instances] = self.count_ar_instances if options[:count_ar_instances].nil?
+      options[:count_memory_usage] = self.count_memory_usage if options[:count_memory_usage].nil?
       options[:logger]             = self.logger             if options[:logger].nil?
       
       # Disable garbage collector to get more precise results
-      GC.disable if options[:count_ar_instances]
+      GC.disable if options[:count_ar_instances] or options[:count_memory_usage]
       
       klass = options[:enabled] ? ProfileInstance : NoProfileInstance
       instance = klass.new(name, options)
@@ -99,7 +114,8 @@ module EasyProfiler
       instance.dump_results
 
       # Enable garbage collector which has been disabled before
-      GC.enable if instance.options[:count_ar_instances]
+      options = instance.options
+      GC.enable if options[:count_ar_instances] or options[:count_memory_usage]
     end
   end
 end

@@ -79,6 +79,8 @@ options:
   print profiling log.
 * <tt>:count_ar_instances</tt> -- indicating whether profiler should
   log an approximate number of instantiated ActiveRecord objects.
+* <tt>:count_memory_usage</tt> -- indicating whether profiler should
+  log an approximate amount of memory used.
 * <tt>:logger</tt> -- a +Logger+ instance.
 
 == Configuration
@@ -93,6 +95,8 @@ class exists:
   by default).
 * <tt>count_ar_instances</tt> -- indicating whether profiler should
   log an approximate number of instantiated ActiveRecord objects.
+* <tt>count_memory_usage</tt> -- indicating whether profiler should
+  log an approximate amount of memory used.
 * <tt>logger</tt> -- a <tt>Logger</tt> instance to dump logs to.
 
 == Active Record instances number profiling
@@ -109,6 +113,18 @@ cases.
 
 Further reading:
 * That’s Not a Memory Leak, It’s Bloat http://www.engineyard.com/blog/2009/thats-not-a-memory-leak-its-bloat/
+
+== Memory usage profiling
+
+The plugin is able to log an amount of memory used by current Ruby
+process. To enable this kind of profiling, use a <tt>:count_memory_usage</tt>
+option or global setting with the same name.
+
+Please note, that easy-prof completely disables garbage collector
+during this kind of profiling. It could hurt your overall application
+performance, so do not use it on production boxes. Also I can't
+guaranty 100% precision, but it is about this value in almost all
+cases.
 
 == Ruby on Rails application profiling
 

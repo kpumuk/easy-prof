@@ -1,4 +1,5 @@
 require File.join(File.dirname(__FILE__), "../lib/easy_prof")
+require 'active_record'
 
 def mock_profile_start(name, options = {})
   options[:enabled] = EasyProfiler::Profile.enable_profiling if options[:enabled].nil?

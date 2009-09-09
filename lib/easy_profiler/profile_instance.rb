@@ -15,7 +15,13 @@ module EasyProfiler
         ", #{ar_instances_delta} AR objects"
       end
 
-      buffer_checkpoint("progress: %0.4f s#{ar_instances_count} [#{message}]" % progress)
+      memory_usage_value = if @options[:count_memory_usage]
+        memory_usage_delta = (memory_usage = process_memory_usage) - @current_memory_usage
+        @current_memory_usage = memory_usage
+        ", #{format_memory_size(total_memory_usage)}"
+      end
+
+      buffer_checkpoint("progress: %0.4f s#{ar_instances_count}#{memory_usage_value} [#{message}]" % progress)
     end
   
     # Sets a profiling checkpoint without execution time printing.
@@ -37,11 +43,15 @@ module EasyProfiler
           profile_logger.info("[#{@name}] #{message}")
         end
         
-        ar_instances_count = if options[:count_ar_instances]
+        ar_instances_count = if @options[:count_ar_instances]
           ", #{total_ar_instances} AR objects"
         end
+        
+        memory_usage_value = if @options[:count_memory_usage]
+          ", #{format_memory_size(total_memory_usage)}"
+        end
 
-        profile_logger.info("[#{@name}] results: %0.4f s#{ar_instances_count}" % t)
+        profile_logger.info("[#{@name}] results: %0.4f s#{ar_instances_count}#{memory_usage_value}" % t)
       end
     end
   
@@ -55,6 +65,11 @@ module EasyProfiler
       # Gets a number of total AR objects instantiated number.
       def total_ar_instances
         active_record_instances_count - @start_ar_instances
+      end
+      
+      # Gets a total amount of memory used.
+      def total_memory_usage
+        process_memory_usage - @start_memory_usage
       end
   
       # Buffers a profiling checkpoint.
