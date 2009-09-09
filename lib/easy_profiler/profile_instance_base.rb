@@ -44,7 +44,7 @@ module EasyProfiler
       # Returns a number of ActiveRecord instances in the Object Space.
       def active_record_instances_count
         count = 0
-        ObjectSpace.each_object(ActiveRecord::Base) { count += 1 }
+        ObjectSpace.each_object(::ActiveRecord::Base) { count += 1 }
         count
       end
   end

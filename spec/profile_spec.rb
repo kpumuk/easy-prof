@@ -2,8 +2,9 @@ require File.dirname(__FILE__) + '/spec_helper'
 
 describe EasyProfiler::Profile do
   after :each do
-    EasyProfiler::Profile.enable_profiling = false
-    EasyProfiler::Profile.print_limit = 0.01
+    EasyProfiler::Profile.enable_profiling   = false
+    EasyProfiler::Profile.print_limit        = 0.01
+    EasyProfiler::Profile.count_ar_instances = false
     EasyProfiler::Profile.send :class_variable_set, :@@profile_results, {}
   end
   
@@ -46,11 +47,23 @@ describe EasyProfiler::Profile do
       EasyProfiler::Profile.start('myprofiler2').options[:limit].should == 10.0
     end
 
+    it 'should use global :count_ar_instances value' do
+      EasyProfiler::Profile.start('myprofiler1').options[:count_ar_instances].should be_false
+      EasyProfiler::Profile.count_ar_instances = true
+      EasyProfiler::Profile.start('myprofiler2').options[:count_ar_instances].should be_true
+    end
+
     it 'should use global :logger value' do
       EasyProfiler::Profile.start('myprofiler1').options[:logger].should be_nil
       logger = mock('MockLogger')
       EasyProfiler::Profile.logger = logger
       EasyProfiler::Profile.start('myprofiler2').options[:logger].should be(logger)
+    end
+    
+    it 'should disable garbage collector when needed' do
+      options = { :enabled => true, :count_ar_instances => true }
+      GC.should_receive(:disable)
+      EasyProfiler::Profile.start('myprofiler', options)
     end
   end
 
@@ -64,6 +77,13 @@ describe EasyProfiler::Profile do
     it 'should call dump_results method on profiler' do
       profiler = mock_profile_start('myprofiler', :enabled => true)
       profiler.should_receive(:dump_results)
+      EasyProfiler::Profile.stop('myprofiler')
+    end
+
+    it 'should enable back garbage collector when needed' do
+      profiler = mock_profile_start('myprofiler', :enabled => true, :count_ar_instances => true)
+      profiler.stub!(:dump_results)
+      GC.should_receive(:enable)
       EasyProfiler::Profile.stop('myprofiler')
     end
   end
