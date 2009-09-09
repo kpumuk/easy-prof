@@ -107,6 +107,9 @@ performance, so do not use it on production boxes. Also I can't
 guaranty 100% precision, but it is about this value in almost all
 cases.
 
+Further reading:
+* That’s Not a Memory Leak, It’s Bloat http://www.engineyard.com/blog/2009/thats-not-a-memory-leak-its-bloat/
+
 == Ruby on Rails application profiling
 
 Here is the complete example of a Rails action profiling:
