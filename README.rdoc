@@ -147,8 +147,9 @@ Do not forget to protect firebug output: it is a bad idea to allow
 anyone to see your profiling session dump. You can allow admin
 users only to use firebug, or restrict this feature by IP address.
 
-BTW, you can use Firebug Console (http://getfirebug.com/console.html)
-to get this feature working in any browser!
+BTW, you can use Firebug Console Lite (http://getfirebug.com/lite.html)
+to get this feature working in any browser! By default it works
+perfectly in Firefox with Firebug installed, and in Safari 4.
 
 == Ruby on Rails application profiling
 
