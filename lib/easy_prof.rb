@@ -9,6 +9,13 @@ require "#{base_dir}/easy_profiler/profile_instance_base"
 require "#{base_dir}/easy_profiler/profile_instance"
 require "#{base_dir}/easy_profiler/no_profile_instance"
 
+if Object.const_defined?(:ActionController)
+  require "#{base_dir}/easy_profiler/firebug_logger"
+  require "#{base_dir}/easy_profiler/action_controller_extensions"
+  
+  ActionController::Base.send(:include, EasyProfiler::ActionControllerExtensions)
+end
+
 module Kernel
   # Wraps code block into the profiling session.
   #

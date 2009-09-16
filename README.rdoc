@@ -126,6 +126,30 @@ performance, so do not use it on production boxes. Also I can't
 guaranty 100% precision, but it is about this value in almost all
 cases.
 
+== Dumping results to the Firebug console
+
+If you are profiling a Ruby on Rails application, it could be useful
+to get profiling results from production server sometimes. To achieve
+this you can use a <tt>FirebugLogger</tt>, bundled with this plugin.
+In any controller you have a helper called <tt>firebug_logger</tt>,
+so you can pass it to EasyProfiler using <tt>:logger</tt> option:
+
+  easy_profiler('home#index', :logger => firebug_logger, :limit => 2) do |p|
+  end
+
+The idea behind this logger is pretty simple (as everything in this
+plugin): there is an <tt>after_filter</tt> named <tt>dump_firebug_profile</tt>,
+which dumps profiling information after your action finished its work.
+Please note: it will not output any line when profiling session is
+disabled or time limit is not reached.
+
+Do not forget to protect firebug output: it is a bad idea to allow
+anyone to see your profiling session dump. You can allow admin
+users only to use firebug, or restrict this feature by IP address.
+
+BTW, you can use Firebug Console (http://getfirebug.com/console.html)
+to get this feature working in any browser!
+
 == Ruby on Rails application profiling
 
 Here is the complete example of a Rails action profiling:
