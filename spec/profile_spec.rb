@@ -66,6 +66,12 @@ describe EasyProfiler::Profile do
       EasyProfiler::Profile.logger = logger
       EasyProfiler::Profile.start('myprofiler2').options[:logger].should be(logger)
     end
+
+    it 'should use global :live_logging value' do
+      EasyProfiler::Profile.start('myprofiler1').options[:live_logging].should be_false
+      EasyProfiler::Profile.live_logging = true
+      EasyProfiler::Profile.start('myprofiler2').options[:live_logging].should be_true
+    end
     
     it 'should disable garbage collector when needed' do
       options = { :enabled => true, :count_ar_instances => true }

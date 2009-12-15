@@ -7,7 +7,7 @@ module EasyProfiler
       def enable_profiling
         @@enable_profiling
       end
-    
+
       # Sets a value indicating whether profiling is globally enabled.
       def enable_profiling=(value)
         @@enable_profiling = value
@@ -30,25 +30,37 @@ module EasyProfiler
       def count_ar_instances
         @@count_ar_instances
       end
-      
+
       # Sets a value indicating whether profiler should log an
       # approximate number of instantiated ActiveRecord objects.
       def count_ar_instances=(value)
         @@count_ar_instances = value
       end
-      
+
       # Gets a value indicating whether profiler should log an
       # approximate amount of memory used.
       def count_memory_usage
         @@count_memory_usage
       end
-      
+
       # Sets a value indicating whether profiler should log an
       # approximate amount of memory used.
       def count_memory_usage=(value)
         @@count_memory_usage = value
       end
-    
+
+      # Gets a value indicating whether profiler should flush
+      # logs on every checkpoint.
+      def live_logging
+        @@live_logging
+      end
+
+      # Sets a value indicating whether profiler should flush
+      # logs on every checkpoint.
+      def live_logging=(value)
+        @@live_logging = value
+      end
+
       # Gets a logger.
       def logger
         @logger
@@ -66,7 +78,8 @@ module EasyProfiler
     @@count_memory_usage = false
     @@logger             = nil
     @@profile_results    = {}
-  
+    @@live_logging       = false
+
     # Starts a profiling session.
     #
     # Parameters:
@@ -79,6 +92,7 @@ module EasyProfiler
     # * <tt>:count_ar_instances</tt> —- indicating whether profiler should log an approximate number of instantiated ActiveRecord objects.
     # * <tt>:count_memory_usage</tt> —- indicating whether profiler should log an approximate amount of memory used.
     # * <tt>:logger</tt> -- a +Logger+ instance.
+    # * <tt>:live_logging</tt> -- indicating whether profiler should flush logs on every checkpoint.
     #
     # Returns:
     # * an instance of profiler (descendant of the <tt>EasyProfiler::ProfileInstanceBase</tt> class).
@@ -92,13 +106,14 @@ module EasyProfiler
       options[:count_ar_instances] = self.count_ar_instances if options[:count_ar_instances].nil?
       options[:count_memory_usage] = self.count_memory_usage if options[:count_memory_usage].nil?
       options[:logger]             = self.logger             if options[:logger].nil?
-      
+      options[:live_logging]       = self.live_logging       if options[:live_logging].nil?
+
       # Disable garbage collector to get more precise results
       GC.disable if options[:count_ar_instances] or options[:count_memory_usage]
-      
+
       klass = options[:enabled] ? ProfileInstance : NoProfileInstance
       instance = klass.new(name, options)
-    
+
       @@profile_results[name] = instance
     end
 
@@ -110,7 +125,7 @@ module EasyProfiler
       unless instance = @@profile_results.delete(name)
         raise ArgumentError.new("EasyProfiler::Profile.stop() error! '#{name}' is not started yet.")
       end
-    
+
       instance.dump_results
 
       # Enable garbage collector which has been disabled before
