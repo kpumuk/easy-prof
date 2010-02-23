@@ -1,18 +1,31 @@
-module EasyProfiler
-end
-
 require 'logger'
 
-base_dir = File.dirname(__FILE__)
-require "#{base_dir}/easy_profiler/profile"
-require "#{base_dir}/easy_profiler/profile_instance_base"
-require "#{base_dir}/easy_profiler/profile_instance"
-require "#{base_dir}/easy_profiler/no_profile_instance"
+module EasyProfiler
+  autoload :Configuration,              'easy_profiler/configuration'
+  autoload :Profile,                    'easy_profiler/profile'
+  autoload :ProfileInstanceBase,        'easy_profiler/profile_instance_base'
+  autoload :ProfileInstance,            'easy_profiler/profile_instance'
+  autoload :NoProfileInstance,          'easy_profiler/no_profile_instance'
+  autoload :FirebugLogger,              'easy_profiler/firebug_logger'
+  autoload :ActionControllerExtensions, 'easy_profiler/action_controller_extensions'
+
+  module ClassMethods
+    def configure(force = false)
+      yield configuration(force)
+    end
+
+    def configuration(force = false)
+      if !@configuration || force
+        @configuration = Configuration.new
+      end
+      @configuration
+    end
+    alias :config :configuration
+  end
+  extend ClassMethods
+end
 
 if Object.const_defined?(:ActionController)
-  require "#{base_dir}/easy_profiler/firebug_logger"
-  require "#{base_dir}/easy_profiler/action_controller_extensions"
-  
   ActionController::Base.send(:include, EasyProfiler::ActionControllerExtensions)
 end
 

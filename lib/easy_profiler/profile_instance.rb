@@ -9,13 +9,13 @@ module EasyProfiler
       progress = (now = Time.now.to_f) - @progress
       @progress = now
 
-      ar_instances_count = if @options[:count_ar_instances]
+      ar_instances_count = if config.count_ar_instances
         ar_instances_delta = (ar_instances = active_record_instances_count) - @current_ar_instances
         @current_ar_instances = ar_instances
         ", #{ar_instances_delta} AR objects"
       end
 
-      memory_usage_value = if @options[:count_memory_usage]
+      memory_usage_value = if config.count_memory_usage
         memory_usage_delta = (memory_usage = process_memory_usage) - @current_memory_usage
         @current_memory_usage = memory_usage
         ", #{format_memory_size(total_memory_usage)}"
@@ -35,9 +35,10 @@ module EasyProfiler
 
     # Dumps results to the log.
     def dump_results
+      progress('END')
       t = total
 
-      if options[:live_logging] || false === @options[:limit] || t > @options[:limit].to_f
+      if config.live_logging || false === config.print_limit || t > config.print_limit.to_f
         log_header(true)
         @buffer.each { |message| log_line(message) }
         log_footer(t)
@@ -64,7 +65,7 @@ module EasyProfiler
       # Buffers a profiling checkpoint.
       def buffer_checkpoint(message)
         log_header
-        if options[:live_logging]
+        if config.live_logging
           log_line(message)
         else
           @buffer << message
@@ -73,7 +74,7 @@ module EasyProfiler
 
       # Write a header to the log.
       def log_header(force = false)
-        if (options[:live_logging] && !@header_printed) || (!options[:live_logging] && force)
+        if (config.live_logging && !@header_printed) || (!config.live_logging && force)
           log_line("Benchmark results:")
           @header_printed = true
         end
@@ -81,11 +82,11 @@ module EasyProfiler
 
       # Write a footer with summary stats to the log.
       def log_footer(total_time)
-        ar_instances_count = if @options[:count_ar_instances]
+        ar_instances_count = if config.count_ar_instances
           ", #{total_ar_instances} AR objects"
         end
 
-        memory_usage_value = if @options[:count_memory_usage]
+        memory_usage_value = if config.count_memory_usage
           ", #{format_memory_size(total_memory_usage)}"
         end
 
@@ -94,26 +95,17 @@ module EasyProfiler
 
       # Write a log line.
       def log_line(line)
-        profile_logger.info("[#{@name}] #{line}")
-      end
+        if config.colorize_logging
+          @@row_even, message_color = if @@row_even
+            [false, '4;32;1']
+          else
+            [true, '4;33;1']
+          end
 
-      # Gets a logger instance.
-      #
-      # When profiler is started inside Rails application,
-      # creates a "log/profile.log" files where all profile
-      # logs will be places. In regular scripts dumps
-      # information directly to STDOUT. You can use
-      # <tt>EasyProfiler::Profile.logger</tt> to set another
-      # logger.
-      def profile_logger
-        return @profile_logger if @profile_logger
-
-        @profile_logger = if Object.const_defined?(:RAILS_ROOT)
-          Logger.new("#{RAILS_ROOT}/log/profile.log")
+          config.logger.info("  [\e[#{message_color}m%s\e[0m] %s" % [@name, line])
         else
-          Logger.new($stdout)
+          config.logger.info("[%s] %s" % [@name, line])
         end
-        @profile_logger
       end
     end
 end

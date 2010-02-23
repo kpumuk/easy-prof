@@ -4,11 +4,17 @@ describe EasyProfiler::ProfileInstance do
   it 'should receive name and options in initialize' do
     profiler = EasyProfiler::ProfileInstance.new('myprofiler1')
     profiler.name.should == 'myprofiler1'
-    profiler.options.should == {}
+    profiler.config.should be(EasyProfiler.configuration)
 
-    profiler = EasyProfiler::ProfileInstance.new('myprofiler2', { :a => 1 })
+    profiler = EasyProfiler::ProfileInstance.new('myprofiler2', { :print_limit => 100 })
     profiler.name.should == 'myprofiler2'
-    profiler.options.should == { :a => 1 }
+    profiler.config.print_limit.should == 100
+
+    config = EasyProfiler::Configuration.new
+    config.print_limit = 100
+    profiler = EasyProfiler::ProfileInstance.new('myprofiler3', config)
+    profiler.name.should == 'myprofiler3'
+    profiler.config.should be(config)
   end
 
   it 'should respond to :progress' do
@@ -35,7 +41,7 @@ describe EasyProfiler::ProfileInstance do
 
   it 'should respond to :dump_results' do
     logger = mock('MockLogger')
-    profiler = EasyProfiler::ProfileInstance.new('myprofiler', :logger => logger, :enabled => true, :limit => false)
+    profiler = EasyProfiler::ProfileInstance.new('myprofiler', :logger => logger, :enabled => true, :limit => false, :colorize_logging => false)
     profiler.should respond_to(:dump_results)
 
     profiler.progress('progress message')
@@ -44,6 +50,7 @@ describe EasyProfiler::ProfileInstance do
     logger.should_receive(:info).ordered.with(/\[myprofiler\] Benchmark results:/)
     logger.should_receive(:info).ordered.with(/\[myprofiler\] progress: \d+\.\d+ s \[progress message\]/)
     logger.should_receive(:info).ordered.with(/\[myprofiler\] debug: debug message/)
+    logger.should_receive(:info).ordered.with(/\[myprofiler\] progress: \d+\.\d+ s \[END\]/)
     logger.should_receive(:info).ordered.with(/\[myprofiler\] results: \d+\.\d+ s/)
 
     profiler.dump_results
@@ -59,7 +66,7 @@ describe EasyProfiler::ProfileInstance do
   context 'when live logging is enabled' do
     before :each do
       @logger = mock('MockLogger').as_null_object
-      @profiler = EasyProfiler::ProfileInstance.new('myprofiler', :logger => @logger, :enabled => true, :live_logging => true)
+      @profiler = EasyProfiler::ProfileInstance.new('myprofiler', :logger => @logger, :enabled => true, :live_logging => true, :colorize_logging => false)
     end
 
     it 'should print header when progress called first time' do

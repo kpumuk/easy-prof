@@ -5,29 +5,22 @@ as a Rails plugin.
 
 == Installation
 
-If you're using Rails 2.1, you can simply use "script/plugin". It will export
-all the code from GitHub into "vendor/plugins":
+There are two options when approaching easy-prof installation:
+
+* using the gem (recommended)
+* install as a Rails plugin
+
+To install as a gem, add this to your environment.rb:
+
+  config.gem 'easy-prof', :lib => 'easy_prof'
+
+And then run the command:
+
+  sudo rake gems:install
+
+To install meta-tags as a Rails plugin use this:
 
   script/plugin install git://github.com/kpumuk/easy-prof.git
-
-If you are using Rails prior to 2.1, use the following:
-
-  cd vendor/plugins
-  git clone git://github.com/kpumuk/easy-prof.git
-  rm -rf easy-prof/.git
-  cd ../..  
-
-To continuously track meta-tags development, it's probably best to install it
-as a plugin using some vendor branch management tool like Braid:
-
-  gem install evilchelu-braid
-
-Using Braid to add a Rails plugin is simple:
-
-  # (make sure you've committed everything first)
-  braid add -p git://github.com/kpumuk/easy-prof.git
-  
-  # now you should have the library in vendor/plugins/easy-prof
 
 == Description
 
@@ -85,8 +78,17 @@ options:
 
 == Configuration
 
-There are some global configuration options of <tt>EasyProfiler::Profile</tt>
-class exists:
+There are some global configuration options exists:
+
+  EasyProfiler.configure do |config|
+    config.enable_profiling   = false
+    config.print_limit        = 0.01
+    config.count_ar_instances = false
+    config.count_memory_usage = false
+    config.logger             = nil # or Rails.logger or whatever
+    config.colorize_logging   = true
+    config.live_logging       = false
+  end
 
 * <tt>enable_profiling</tt> -- used to enable or disable profiling
   globalle (<tt>false</tt> by default).
@@ -98,6 +100,12 @@ class exists:
 * <tt>count_memory_usage</tt> -- indicating whether profiler should
   log an approximate amount of memory used.
 * <tt>logger</tt> -- a <tt>Logger</tt> instance to dump logs to.
+* <tt>colorize_logging</tt> -- when <tt>true</tt>, output will be
+  colorized (useful when dumping profiling information into the
+  Rails log).
+* <tt>live_logging</tt> -- when <tt>true</tt>, every profiling info
+  will be pushed to the log immediately (by default everything will
+  be dumped in the end of profiling session).
 
 == Active Record instances number profiling
 
