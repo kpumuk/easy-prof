@@ -6,7 +6,7 @@ describe EasyProfiler::ProfileInstance do
     profiler.name.should == 'myprofiler1'
     profiler.config.should be(EasyProfiler.configuration)
 
-    profiler = EasyProfiler::ProfileInstance.new('myprofiler2', { :print_limit => 100 })
+    profiler = EasyProfiler::ProfileInstance.new('myprofiler2', :print_limit => 100)
     profiler.name.should == 'myprofiler2'
     profiler.config.print_limit.should == 100
 
@@ -15,6 +15,15 @@ describe EasyProfiler::ProfileInstance do
     profiler = EasyProfiler::ProfileInstance.new('myprofiler3', config)
     profiler.name.should == 'myprofiler3'
     profiler.config.should be(config)
+  end
+
+  it 'should not change global configuration options' do
+    EasyProfiler.config.print_limit = 10
+
+    profiler = EasyProfiler::ProfileInstance.new('myprofiler1', :print_limit => 100)
+    profiler.config.print_limit.should == 100
+
+    EasyProfiler.config.print_limit.should == 10
   end
 
   it 'should respond to :progress' do

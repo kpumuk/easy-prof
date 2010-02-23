@@ -7,6 +7,9 @@ describe EasyProfiler::Profile do
       config.print_limit        = 0.01
       config.count_ar_instances = false
       config.count_memory_usage = false
+      config.logger             = nil
+      config.colorize_logging   = false
+      config.live_logging       = false
     end
     EasyProfiler::Profile.reset!
   end
@@ -19,6 +22,15 @@ describe EasyProfiler::Profile do
     it 'should pass options to profile instance' do
       options = { :print_limit => 100 }
       EasyProfiler::Profile.start('myprofiler', options).config.print_limit.should == 100
+    end
+
+    it 'should not change global configuration options' do
+      EasyProfiler.config.print_limit = 10
+
+      profiler = EasyProfiler::Profile.start('myprofiler', :print_limit => 100)
+      profiler.config.print_limit.should == 100
+
+      EasyProfiler.config.print_limit.should == 10
     end
 
     it 'should create a ProfileInstance object when enabled' do
