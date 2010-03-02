@@ -1,7 +1,7 @@
 module EasyProfiler
   # Base class for profilers.
   class ProfileInstanceBase
-    attr_reader :name, :config
+    attr_reader :name, :config, :buffer
 
     @@row_even = true
 
@@ -12,11 +12,7 @@ module EasyProfiler
     # * options -- a +Hash+ of options (see <tt>EasyProfiler::Profile.start</tt> for details).
     def initialize(name, config = nil)
       @name = name
-      @config = case config
-        when Hash: EasyProfiler.configuration.merge(config)
-        when EasyProfiler::Configuration: config
-        else EasyProfiler.configuration
-      end
+      @config = Configuration.parse(config)
 
       @start = @progress = Time.now.to_f
 
@@ -50,6 +46,18 @@ module EasyProfiler
     # * message -- a message to associate with a check point.
     #
     def debug(message)
+    end
+
+    # Start a group with a specified name.
+    #
+    # Parameters:
+    # * name -- a name of the group.
+    #
+    def group(name, options = {}, &block)
+      self
+    end
+
+    def end_group
     end
 
     # Dumps results to the log.

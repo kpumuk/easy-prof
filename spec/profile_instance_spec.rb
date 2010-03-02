@@ -31,9 +31,9 @@ describe EasyProfiler::ProfileInstance do
     profiler.should respond_to(:progress)
     lambda {
       profiler.progress('message')
-      buffer = profiler.instance_variable_get(:@buffer)
-      buffer.should have(1).item
-      buffer.first.should match(/progress: \d+\.\d+ s \[message\]/)
+      profiler.buffer.should have(2).items
+      profiler.buffer[1][0].should match(/progress: \d+\.\d+ s \[message\]/)
+      profiler.buffer[1][1].should == 'myprofiler'
     }.should_not raise_error
   end
 
@@ -42,9 +42,9 @@ describe EasyProfiler::ProfileInstance do
     profiler.should respond_to(:debug)
     lambda {
       profiler.debug('message')
-      buffer = profiler.instance_variable_get(:@buffer)
-      buffer.should have(1).item
-      buffer.first.should match(/debug: message/)
+      profiler.buffer.should have(2).item
+      profiler.buffer[1][0].should match(/debug: message/)
+      profiler.buffer[1][1].should == 'myprofiler'
     }.should_not raise_error
   end
 

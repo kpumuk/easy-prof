@@ -21,20 +21,22 @@ module EasyProfiler
     #
     # Returns:
     # * an instance of profiler (descendant of the <tt>EasyProfiler::ProfileInstanceBase</tt> class).
-    def self.start(name, options = {})
+    def self.start(name, config = nil)
       if @@profile_results[name]
         raise ArgumentError.new("EasyProfiler::Profile.start() collision! '#{name}' is already started.")
       end
 
-      config = EasyProfiler.configuration.merge(options)
-
-      # Disable garbage collector to get more precise results
-      GC.disable if config.disable_gc?
+      config = Configuration.parse(config)
 
       klass = config.enabled? ? ProfileInstance : NoProfileInstance
       instance = klass.new(name, config)
 
       @@profile_results[name] = instance
+
+      # Disable garbage collector to get more precise results
+      GC.disable if instance.config.disable_gc?
+
+      instance
     end
 
     # Finishes a profiling session and dumps results to the log.
@@ -53,7 +55,7 @@ module EasyProfiler
     end
 
     def self.reset!
-      @@profile_results    = {}
+      @@profile_results = {}
     end
   end
 end

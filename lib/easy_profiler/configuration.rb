@@ -2,7 +2,7 @@ module EasyProfiler
   class Configuration
     # Value indicating whether profiling is globally enabled.
     attr_reader :enable_profiling
-    
+
     # Minimum time period which should be reached to dump
     # profile to the log.
     attr_reader :print_limit
@@ -32,10 +32,10 @@ module EasyProfiler
       @count_ar_instances = false
       @count_memory_usage = false
       @logger             = nil
-      @colorize_logging   = true
+      @colorize_logging   = false
       @live_logging       = false
     end
-    
+
     # Sets a value indicating whether profiling is globally enabled.
     def enable_profiling=(value)
       @enable_profiling = !!value
@@ -55,10 +55,10 @@ module EasyProfiler
 
     # Sets a value indicating whether profiler should log an
     # approximate amount of memory used.
-    # 
+    #
     # @param Boolean value
     #   identifies whether memory profiling should be enabled.
-    # 
+    #
     def count_memory_usage=(value)
       @count_memory_usage = !!value
     end
@@ -69,7 +69,7 @@ module EasyProfiler
 
     # Sets a value indicating whether profiler should flush
     # logs on every checkpoint.
-    # 
+    #
     def live_logging=(value)
       @live_logging = !!value
     end
@@ -82,7 +82,7 @@ module EasyProfiler
     # information directly to STDOUT. You can use
     # <tt>EasyProfiler.configuration.logger</tt> to set another
     # logger.
-    # 
+    #
     def logger
       unless @logger
         @logger = if Object.const_defined?(:Rails)
@@ -105,14 +105,24 @@ module EasyProfiler
       config.logger             = options[:logger]             if options.has_key?(:logger)
       config.colorize_logging   = options[:colorize_logging]   if options.has_key?(:colorize_logging)
       config.live_logging       = options[:live_logging]       if options.has_key?(:live_logging)
-      
       config
     end
-    
+
+    def self.parse(config)
+      case config
+        when Hash
+          EasyProfiler.configuration.merge(config)
+        when EasyProfiler::Configuration
+          config
+        else
+          EasyProfiler.configuration
+      end
+    end
+
     def disable_gc?
       count_ar_instances or count_memory_usage
     end
-    
+
     def enabled?
       enable_profiling
     end

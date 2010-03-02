@@ -1,6 +1,8 @@
 module EasyProfiler
   # Class used when profiling is disabled.
   class ProfileInstance < ProfileInstanceBase
+    @@groups_stack       = []
+
     # Sets a profiling checkpoint (block execution time will be printed).
     #
     # Parameters:
@@ -33,15 +35,32 @@ module EasyProfiler
       buffer_checkpoint("debug: #{message}")
     end
 
+    # Start a group with a specified name.
+    #
+    # Parameters:
+    # * name -- a name of the group.
+    #
+    def group(name)
+      progress "Before group '#{name}'"
+      debug 'Started group'
+      @@groups_stack << name
+    end
+
+    def end_group
+      debug "Finished group"
+      @@groups_stack.pop
+    end
+
     # Dumps results to the log.
     def dump_results
-      progress('END')
-      t = total
+      self.end_group while @@groups_stack.any?
 
-      if config.live_logging || false === config.print_limit || t > config.print_limit.to_f
-        log_header(true)
-        @buffer.each { |message| log_line(message) }
-        log_footer(t)
+      progress('END')
+
+      t = total
+      log_footer(t)
+      if false === config.print_limit || t > config.print_limit.to_f
+        @buffer.each { |message| log_line(*message) }
       end
     end
 
@@ -64,20 +83,22 @@ module EasyProfiler
 
       # Buffers a profiling checkpoint.
       def buffer_checkpoint(message)
-        log_header
+        log_header unless @header_printed
+
+        group_name = @@groups_stack.last
+        name = group_name ? "#{@name}: #{group_name}" : @name
+
         if config.live_logging
-          log_line(message)
+          log_line(message, name)
         else
-          @buffer << message
+          @buffer << [message, name]
         end
       end
 
       # Write a header to the log.
-      def log_header(force = false)
-        if (config.live_logging && !@header_printed) || (!config.live_logging && force)
-          log_line("Benchmark results:")
-          @header_printed = true
-        end
+      def log_header
+        @header_printed = true
+        buffer_checkpoint("Benchmark results:")
       end
 
       # Write a footer with summary stats to the log.
@@ -90,11 +111,13 @@ module EasyProfiler
           ", #{format_memory_size(total_memory_usage)}"
         end
 
-        log_line("results: %0.4f s#{ar_instances_count}#{memory_usage_value}" % total_time)
+        buffer_checkpoint("results: %0.4f s#{ar_instances_count}#{memory_usage_value}" % total_time)
       end
 
       # Write a log line.
-      def log_line(line)
+      def log_line(line, name = nil)
+        name ||= @name
+
         if config.colorize_logging
           @@row_even, message_color = if @@row_even
             [false, '4;32;1']
@@ -102,9 +125,9 @@ module EasyProfiler
             [true, '4;33;1']
           end
 
-          config.logger.info("  [\e[#{message_color}m%s\e[0m] %s" % [@name, line])
+          config.logger.info("[\e[#{message_color}m%s\e[0m] %s" % [name, line])
         else
-          config.logger.info("[%s] %s" % [@name, line])
+          config.logger.info("[%s] %s" % [name, line])
         end
       end
     end
