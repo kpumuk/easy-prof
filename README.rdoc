@@ -18,6 +18,13 @@ And then run the command:
 
   sudo rake gems:install
 
+If use Rails 3, add this to your Gemfile:
+  gem 'easy-prof'
+
+And then run the command: 
+  bundle install
+
+
 To install meta-tags as a Rails plugin use this:
 
   script/plugin install git://github.com/kpumuk/easy-prof.git
@@ -164,6 +171,8 @@ perfectly in Firefox with Firebug installed, and in Safari 4.
 Here is the complete example of a Rails action profiling:
 
   class HomeController < ApplicationController
+    require 'easy_prof'
+
     def index
       easy_profiler('home#index', :enabled => profile_request?, :limit => 2) do |p|
         p.progress 'logged in user home page'

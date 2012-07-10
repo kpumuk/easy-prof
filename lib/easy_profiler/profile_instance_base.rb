@@ -12,9 +12,9 @@ module EasyProfiler
     # * options -- a +Hash+ of options (see <tt>EasyProfiler::Profile.start</tt> for details).
     def initialize(name, config = nil)
       @name = name
-      @config = case config
-        when Hash: EasyProfiler.configuration.merge(config)
-        when EasyProfiler::Configuration: config
+      @config = case config.class
+        when "Hash" then EasyProfiler.configuration.merge(config)
+        when "EasyProfiler::Configuration" then config
         else EasyProfiler.configuration
       end
 
