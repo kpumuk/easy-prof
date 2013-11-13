@@ -3,3 +3,4 @@ rdoc
 .yardoc
 pkg
 *.gem
+Gemfile.lock
