@@ -7,9 +7,9 @@ as a Rails plugin.
 
 ## Installation
 
-Add the "easy_prof" gem to your `Gemfile`.
+Add the "easy-prof" gem to your `Gemfile`.
 
-    gem "easy_prof"
+    gem "easy-prof"
 
 And run `bundle install` command.
 
