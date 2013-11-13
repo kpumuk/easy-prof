@@ -49,7 +49,7 @@ describe EasyProfiler::ProfileInstance do
   end
 
   it 'should respond to :dump_results' do
-    logger = mock('MockLogger')
+    logger = double('MockLogger')
     profiler = EasyProfiler::ProfileInstance.new('myprofiler', :logger => logger, :enabled => true, :limit => false, :colorize_logging => false)
     profiler.should respond_to(:dump_results)
 
