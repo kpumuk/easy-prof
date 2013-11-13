@@ -66,7 +66,7 @@ describe EasyProfiler::ProfileInstance do
   end
 
   it 'should render nothing when time limit not reached' do
-    logger = mock('MockLogger')
+    logger = double('MockLogger')
     profiler = EasyProfiler::ProfileInstance.new('myprofiler', :logger => logger, :enabled => true, :limit => 20)
     logger.should_not_receive(:info)
     profiler.dump_results
@@ -74,7 +74,7 @@ describe EasyProfiler::ProfileInstance do
 
   context 'when live logging is enabled' do
     before :each do
-      @logger = mock('MockLogger').as_null_object
+      @logger = double('MockLogger').as_null_object
       @profiler = EasyProfiler::ProfileInstance.new('myprofiler', :logger => @logger, :enabled => true, :live_logging => true, :colorize_logging => false)
     end
 

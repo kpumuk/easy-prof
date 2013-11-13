@@ -1,36 +1,11 @@
-require 'rake'
+require 'bundler'
+Bundler::GemHelper.install_tasks
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name        = 'easy-prof'
-    gemspec.summary     = 'Simple and easy to use Ruby code profiler'
-    gemspec.description = 'Simple Ruby code profiler to use both in Rails applications and generic Ruby scripts.'
-    gemspec.email       = 'kpumuk@kpumuk.info'
-    gemspec.homepage    = 'http://github.com/kpumuk/easy-prof'
-    gemspec.authors     = ['Dmytro Shteflyuk']
-  end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts 'Jeweler not available. Install it with: sudo gem install jeweler'
-end
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new(:spec)
 
-begin
-  require 'spec/rake/spectask'
-
-  desc 'Default: run unit tests.'
-  task :default => :spec
-
-  desc 'Test the easy-prof plugin.'
-  Spec::Rake::SpecTask.new(:spec) do |t|
-    t.libs << 'lib'
-    t.pattern = 'spec/**/*_spec.rb'
-    t.verbose = true
-    t.spec_opts = ['-cfs']
-  end
-rescue LoadError
-  puts 'RSpec not available. Install it with: sudo gem install rspec'
-end
+task :test => :spec
+task :default => :spec
 
 begin
   require 'yard'

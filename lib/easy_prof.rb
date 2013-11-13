@@ -1,13 +1,13 @@
 require 'logger'
 
 module EasyProfiler
-  autoload :Configuration,              'easy_profiler/configuration'
-  autoload :Profile,                    'easy_profiler/profile'
-  autoload :ProfileInstanceBase,        'easy_profiler/profile_instance_base'
-  autoload :ProfileInstance,            'easy_profiler/profile_instance'
-  autoload :NoProfileInstance,          'easy_profiler/no_profile_instance'
-  autoload :FirebugLogger,              'easy_profiler/firebug_logger'
-  autoload :ActionControllerExtensions, 'easy_profiler/action_controller_extensions'
+  autoload :Configuration,              'easy_prof/configuration'
+  autoload :Profile,                    'easy_prof/profile'
+  autoload :ProfileInstanceBase,        'easy_prof/profile_instance_base'
+  autoload :ProfileInstance,            'easy_prof/profile_instance'
+  autoload :NoProfileInstance,          'easy_prof/no_profile_instance'
+  autoload :FirebugLogger,              'easy_prof/firebug_logger'
+  autoload :ActionControllerExtensions, 'easy_prof/action_controller_extensions'
 
   module ClassMethods
     def configure(force = false)

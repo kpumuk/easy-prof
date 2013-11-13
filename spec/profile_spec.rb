@@ -13,7 +13,7 @@ describe EasyProfiler::Profile do
     end
     EasyProfiler::Profile.reset!
   end
-  
+
   context '.start' do
     it 'should pass name to profile instance' do
       EasyProfiler::Profile.start('myprofiler').name.should == 'myprofiler'
@@ -75,7 +75,7 @@ describe EasyProfiler::Profile do
     end
 
     it 'should use global :logger value' do
-      logger = mock('MockLogger')
+      logger = double('MockLogger')
       EasyProfiler.config.logger = logger
       EasyProfiler::Profile.start('myprofiler2').config.logger.should be(logger)
     end
@@ -85,7 +85,7 @@ describe EasyProfiler::Profile do
       EasyProfiler.config.live_logging = true
       EasyProfiler::Profile.start('myprofiler2').config.live_logging.should be_true
     end
-    
+
     it 'should disable garbage collector when needed' do
       options = { :enabled => true, :count_ar_instances => true }
       GC.should_receive(:disable)
@@ -112,12 +112,12 @@ describe EasyProfiler::Profile do
 
     it 'should enable back garbage collector when needed' do
       profiler = mock_profile_start('myprofiler1', :enabled => true, :count_ar_instances => true)
-      profiler.stub!(:dump_results)
+      profiler.stub(:dump_results)
       GC.should_receive(:enable)
       EasyProfiler::Profile.stop('myprofiler1')
 
       profiler = mock_profile_start('myprofiler2', :enabled => true, :count_memory_usage => true)
-      profiler.stub!(:dump_results)
+      profiler.stub(:dump_results)
       GC.should_receive(:enable)
       EasyProfiler::Profile.stop('myprofiler2')
     end
