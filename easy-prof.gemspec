@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'http://github.com/kpumuk/easy-prof'
   s.summary     = %q{Simple and easy to use Ruby code profiler.}
   s.description = %q{Simple Ruby code profiler to use both in Rails applications and generic Ruby scripts.}
+  s.license     = 'MIT'
 
   s.add_development_dependency 'activerecord', '~> 3.2.15'
   s.add_development_dependency 'rake'
