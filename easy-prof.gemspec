@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'activerecord', '~> 3.2.15'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'rspec', '~> 3.0.0.rc1'
   s.add_development_dependency 'yard'
   s.add_development_dependency 'bluecloth'
 
