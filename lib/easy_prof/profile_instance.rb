@@ -24,6 +24,8 @@ module EasyProfiler
       end
 
       buffer_checkpoint("progress: %0.4f s#{ar_instances_count}#{memory_usage_value} [#{message}]" % progress)
+
+      return progress
     end
 
     # Sets a profiling checkpoint without execution time printing.
